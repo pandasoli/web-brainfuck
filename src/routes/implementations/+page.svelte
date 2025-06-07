@@ -1,4 +1,5 @@
 <script lang='ts'>
+	import { pageTitle } from '$stores/title'
 	import { CodeBergIcon, GitHubIcon } from '$assets'
 
 	interface Project {
@@ -27,6 +28,8 @@
 	const encoders: Project[] = [
 		{title: 'Smart Encoder', description: 'Uses many techniques to get the smallest output possible.', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: '', langs: ['js']}
 	]
+
+	pageTitle.set('Implementations')
 </script>
 
 {#snippet card({title, description, platform, repo, author, path, langs}: Project)}

@@ -1,5 +1,6 @@
 <script lang='ts'>
 	import { page } from '$app/state'
+	import { pageTitle } from '$stores/title'
 	import { Editor, Slide, CheckBox, Button, InputNumber } from '$lib'
 	import { bfencoderv2 } from '$scripts/encoderv2'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
@@ -80,6 +81,8 @@
 			return line
 		})
 	}
+
+	pageTitle.set('Encode')
 </script>
 
 <section class='relative h-[70vh] bg-[url("/background.jpg")] bg-fixed bg-cover bg-center'>

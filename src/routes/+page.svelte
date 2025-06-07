@@ -1,6 +1,9 @@
 <script lang='ts'>
+	import { pageTitle } from '$stores/title'
 	import { Header, Button } from '$lib'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
+
+	pageTitle.set('')
 </script>
 
 <div class='text-slate-500'></div>

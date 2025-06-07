@@ -1,5 +1,6 @@
 <script lang='ts'>
 	import { page } from '$app/state'
+	import { pageTitle } from '$stores/title'
 	import { Editor, Button, Slide, CheckBox } from '$lib'
 	import { bfinterpreter } from '$scripts/complete'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
@@ -77,6 +78,8 @@
 		20: 'DC4', 21: 'NAK', 22: 'SYN', 23: 'ETB', 24: 'CAN', 25: 'EM', 26: 'SUB', 27: 'ESC', 28: 'FS', 29: 'GS',
 		30: 'RS', 31: 'US', 32: 'space'
 	}
+
+	pageTitle.set('Decode')
 </script>
 
 <section class='relative h-[70vh] bg-[url("/background.jpg")] bg-fixed bg-cover bg-center'>
