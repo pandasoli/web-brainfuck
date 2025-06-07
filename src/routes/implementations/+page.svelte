@@ -13,20 +13,20 @@
 	}
 
 	const interpreters: Project[] = [
-		{title: 'Small Interpreter', description: '', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: '', langs: ['js']},
-		{title: 'Complete Interpreter', description: 'Focused on web usage with many features for user interaction.', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: '', langs: ['js']}
+		{title: 'Small Interpreter', description: '', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: 'src/branch/master/interpreters/smallest.js', langs: ['js']},
+		{title: 'Complete Interpreter', description: 'Focused on web usage with many features for user interaction.', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: 'src/branch/master/interpreters/complete.js', langs: ['js']}
 	]
 
 	const compilers: Project[] = [
-		{title: 'JIT Compiler', description: '', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: '', langs: ['js', 'c']}
+		{title: 'JIT Compiler', description: '', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: 'src/branch/master/compilers/jit', langs: ['js', 'c']}
 	]
 
 	const transpilers: Project[] = [
-		{title: 'GNU Assembly Transpiler', description: '', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: '', langs: ['js']}
+		{title: 'GNU Assembly Transpiler', description: '', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: 'src/branch/master/transpilers/gas', langs: ['js']}
 	]
 
 	const encoders: Project[] = [
-		{title: 'Smart Encoder', description: 'Uses many techniques to get the smallest output possible.', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: '', langs: ['js']}
+		{title: 'Smart Encoder', description: 'Uses many techniques to get the smallest output possible.', platform: 'codeberg.org', repo: 'brainfuck', author: 'elisoli', path: 'src/branch/master/encoders/encoderv2.js', langs: ['js']}
 	]
 
 	pageTitle.set('Implementations')
