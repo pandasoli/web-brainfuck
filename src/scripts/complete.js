@@ -20,7 +20,7 @@
 * @param {string} code - Brainfuck code
 * @param {Config} [config] - Configuration to start interpretation from & dependencies
 * @yields {Result}
-* @returns {Generator<Result>}
+* @returns {Generator<Result, Result, void>}
 */
 export function * bfinterpreter(code = '', config = {}) {
   const mem = config?.mem ?? [0]

@@ -7,11 +7,12 @@
 
 	let code = $state(page.url.searchParams.get('code') ?? 'H = 72\n++++++++\n[\n\t> +++++++++\n\t< -\n]\n> .\n\ne = 101\n+++++++++++++++++++++++++++++ .\n\nll = 108\n+++++++ ..\n\no = 111\n+++ .\n\nvirgola = 44\n< ++++++++++\n[\n\t> -------\n\t< -\n]\n> +++ .\n\nspace = 0\n< ++++\n[\n\t> -----------\n\t< -\n]\n> .\n\nW = 87\n< ++++++++\n[\n\t> +++++++++++\n\t< -\n]\n> - .\n\no = 111\n< +++\n[\n\t> ++++++++\n\t< -\n]\n> .\n\nr = 114\n+++ .\n\nl = 108\n------ .\n\nd = 100\n-------- .\n\nexclamation = 33\n< +++\n[\n\t> ----------------------\n\t< -\n]\n> - .\n')
 
-	let interpreter: any = $state()
+	let interpreter: ReturnType<typeof bfinterpreter>|null = $state(null)
 	let mode: 'straight'|'step' = $state('straight')
 	let speed = $state(0)
 	let pause = $state(true)
 	let interval = $state(0)
+	let error = $state('')
 
 	let memory: number[] = $state([0, 0, 0])
 	let pointer = $state(0)
@@ -37,18 +38,27 @@
 	}
 
 	const step = () => {
+		if (!interpreter) throw new Error('Code should not be reached')
+
 		mode = 'step'
 
-		const stage = interpreter.next()
+		try {
+			const stage = interpreter.next()
+			const res = stage.value
 
-		const { mem, ptr, res, ip: ip_ } = stage.value
-		memory = mem
-		pointer = ptr
-		result = res
-		ip = ip_
+			memory = res.mem
+			pointer = res.ptr
+			result = res.res
+			ip = res.ip
+			error = ''
 
-		if (stage.done)
-			interpreter = null
+			if (stage.done)
+				interpreter = null
+		}
+		catch (e: any) {
+			reset()
+			error = e.message
+		}
 	}
 
 	const continue_ = () =>
@@ -61,9 +71,8 @@
 	const reset = () => {
 		interpreter = null
 		memory = [0, 0, 0]
-		pointer = 0
-		result = ''
-		ip = 0
+		ip = pointer = 0
+		error = result = ''
 		clearInterval(interval)
 	}
 
@@ -145,8 +154,12 @@
 <section class='pt-15'>
 	<div class='mx-auto w-[min(1020px,94%)] bg-[var(--cl)] rounded-lg p-4 flex flex-col gap-4 items-center'>
 		<div class='w-full'>
-			<span class='text-neutral-500'>Result:</span>
-			{result}
+			{#if error}
+				<span class='text-red-400'>{error}</span>
+			{:else}
+				<span class='text-neutral-500'>Result:</span>
+				{result}
+			{/if}
 		</div>
 
 		{#if result}

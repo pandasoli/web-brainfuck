@@ -7,7 +7,7 @@
 
 	let code = $state(page.url.searchParams.get('text') ?? 'Hello, World!')
 
-	let interpreter: any = $state()
+	let interpreter: ReturnType<typeof bfencoderv2>|null = $state(null)
 	let mode: 'straight'|'step' = $state('straight')
 	let speed = $state(0)
 	let pause = $state(true)
@@ -18,6 +18,7 @@
 	let pointer = $state(0)
 	let ip = $state(0)
 	let result = $state('')
+	let error = $state('')
 
 	const execute = () => {
 		interpreter = bfencoderv2(code, { pause: true, max_mem })
@@ -30,27 +31,34 @@
 	}
 
 	const step = () => {
+		if (!interpreter) throw new Error('Code should not be reached')
+
 		mode = 'step'
 
 		const stage = interpreter.next()
-		console.log(stage)
+		const res = stage.value
 
-		const { mem, ptr, res, ip: ip_ } = stage.value
-		memory = mem
-		pointer = ptr
-		result = res
-		ip = ip_
+		if (res.err) {
+			reset()
+			error = res.err
+		}
+		else {
+			memory = res.mem!
+			pointer = res.ptr!
+			result = res.res!
+			ip = res.ip!
+			error = ''
 
-		if (stage.done)
-			interpreter = null
+			if (stage.done)
+				interpreter = null
+		}
 	}
 
 	const reset = () => {
 		interpreter = null
 		memory = [0, 0, 0]
-		pointer = 0
-		result = ''
-		ip = 0
+		ip = pointer = 0
+		error = result = ''
 		clearInterval(interval)
 	}
 
@@ -153,8 +161,12 @@
 <section class='pt-15'>
 	<div class='mx-auto w-[min(1020px,94%)] bg-[var(--cl)] rounded-lg p-4 flex flex-col gap-4 items-center'>
 		<div class='w-full'>
-			<span class='text-neutral-500'>Result:</span>
-			{@html brainfuckHighlight(result, -1)}
+			{#if error}
+				<span class='text-red-400'>{error}</span>
+			{:else}
+				<span class='text-neutral-500'>Result:</span>
+				{@html brainfuckHighlight(result, -1)}
+			{/if}
 		</div>
 
 		{#if result}

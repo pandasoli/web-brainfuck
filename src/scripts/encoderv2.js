@@ -317,7 +317,7 @@ class Methods {
 /**
  * @param {string} text - Raw text
  * @param {Result} config - Configuration and state to begin from
- * @returns {Generator<Result>}
+ * @returns {Generator<Result, Result, void>}
  * @desc Encode raw text into Brainfuck code
  */
 export const bfencoderv2 = function *(text, config = {}) {
