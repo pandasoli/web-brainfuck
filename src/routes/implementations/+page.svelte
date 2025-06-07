@@ -71,7 +71,7 @@
 <div class='flex items-center justify-center'>
 	<p class='text-center'>
 		<span class='text-lime-200'>I'm accepting pull requests to add more projects!</span><br>
-		<a href='https://codeberg.org/elisoli/web-brainfuck'>elisoli/web-brainfuck</a>
+		<a href='https://github.com/pandasoli/web-brainfuck'>pandasoli/web-brainfuck</a>
 	</p>
 </div>
 
