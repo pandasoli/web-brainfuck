@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * @typedef {Object} BfEncoderv2Result
+ * @typedef {Object} Result
  * @property {number[]} [mem] - The memory array
  * @property {number} [max_mem] - Max memory size
  * @property {number} [ptr] - Current memory index
@@ -9,6 +9,21 @@
  * @property {string} [res] - The outputed result
  * @property {boolean} [pause] - Pause when found valid character
  * @property {string} [err] - Error
+ */
+
+/**
+ * @typedef {Object} MethodSuccessResult
+ * @property {string} code
+ * @property {Environment} env
+ */
+
+/**
+ * @typedef {Object} MethodErrorResult
+ * @property {string} err
+ */
+
+/**
+ * @typedef {MethodSuccessResult|MethodErrorResult} MethodResult
  */
 
 /**
@@ -47,24 +62,29 @@ const adjustValue = (curr, target) => {
 
 /**
  * @param {Environment} env
- * @param {string} val - Target value
+ * @param {number} val - Target value
  * @returns {{ sign: string, steps: number, cell: number }|null}
  * @desc Find the closest unlocked cell's value to the target
  */
 const findNearestCloestUnlockedCell = (env, val) => {
-	const locks = new Set(env.locks)
+	const locks = new Set(env.locks);
+	let result = null;
+	let minTotalSteps = Infinity
 
-	return env.mem.reduce((old, cell, i) => {
-		if (locks.has(i)) return old
+	for (let i = 0; i < env.mem.length; i++) {
+		if (locks.has(i)) continue
 
-		const {sign, steps} = adjustValue(cell, Number(val))
-		const new_ = {sign, steps, cell: i}
+		const currentValue = env.mem[i]
+		const { sign, steps } = adjustValue(currentValue, val)
+		const totalSteps = i + steps // Distance + steps to adjust value
 
-		if (!old) return new_
+		if (totalSteps < minTotalSteps) {
+			minTotalSteps = totalSteps
+			result = { sign, steps, cell: i }
+		}
+	}
 
-		if (old.cell + old.steps < i + steps) return old
-		return new_
-	}, null)
+	return result
 }
 
 /**
@@ -77,7 +97,7 @@ const findNearestUnlockedCell = env => {
 
 	return env.mem
 		.map((_, i) => locks.has(i) ? null : { index: i, steps: Math.abs(i - env.ptr) })
-		.filter(Boolean)
+		.filter(e => e !== null)
 		.sort((a, b) => a.steps - b.steps)
 		.map(({ index }) => index)[0] ?? null
 }
@@ -109,6 +129,7 @@ class Methods {
 	/**
 	 * @param {Environment} env
 	 * @param {boolean} set - Set pointer
+	 * @param {number} to - Position
 	 * @desc Move pointer to memory index
 	 */
 	move(env, to, set = false) {
@@ -121,7 +142,7 @@ class Methods {
 	/**
 	 * @param {Environment} env
 	 * @param {number} val - Value
-	 * @return {{ code: string, env: Environment, err?: string }}
+	 * @returns {MethodResult}
 	 * @desc Just increment or decrement
 	 */
 	incDec(env, val) {
@@ -129,9 +150,9 @@ class Methods {
 		let { ptr } = env
 
 		// Find nearest unlocked cell
-		ptr = findNearestUnlockedCell(env)
-		if (ptr === null)
-			return {err: 'All memory cells are locked'}
+		const ptr_ = findNearestUnlockedCell(env)
+		if (!ptr_) return {err: 'All memory cells are locked'}
+		ptr = ptr_
 
 		const {sign, steps} = adjustValue(mem[ptr], val)
 
@@ -149,7 +170,7 @@ class Methods {
 	/**
 	 * @param {Environment} env
 	 * @param {number} val - Value
-	 * @return {{ code: string, env: Environment, err?: string }}
+	 * @returns {MethodResult}
 	 * @desc Find the best cell and increment or decrement
 	 */
 	moveIncDec(env, val) {
@@ -157,8 +178,7 @@ class Methods {
 
 		// Find closest unlocked cell value
 		const res = findNearestCloestUnlockedCell(env, val)
-		if (!res)
-			return {err: 'All cells are locked'}
+		if (!res) return {err: 'All cells are locked'}
 
 		const { sign, steps, cell: ptr } = res
 
@@ -176,7 +196,7 @@ class Methods {
 	/**
 	 * @param {Environment} env
 	 * @param {number} val - Value
-	 * @return {{ code: string, env: Environment, err?: string }}
+	 * @returns {MethodResult}
 	 * @desc Create new cell and increment or decrement
 	 */
 	createIncDec(env, val) {
@@ -204,16 +224,16 @@ class Methods {
 	/**
 	 * @param {Environment} env
 	 * @param {number} val - Value
-	 * @return {{ code: string, env: Environment, err?: string }}
+	 * @returns {MethodResult}
 	 * @desc Set memory to 0 and increment/decrement
 	 */
 	zeroIncDec(env, val) {
 		let { mem, ptr } = env
 
 		// Find nearest unlocked cell
-		ptr = findNearestUnlockedCell(env)
-		if (ptr === null)
-			return {err: 'All cells are locked'}
+		const ptr_ = findNearestUnlockedCell(env)
+		if (!ptr_) return {err: 'All cells are locked'}
+		ptr = ptr_
 
 		const {sign, steps} = adjustValue(0, val)
 
@@ -230,8 +250,8 @@ class Methods {
 	/**
 	 * @param {Environment} env
 	 * @param {number} val - Value
-	 * @param {(char: string) => { code: string, err?: string }} encode
-	 * @return {{ code: string, env: Environment, err?: string }}
+	 * @param {(char: number, env: Environment|null) => MethodResult} encode
+	 * @returns {MethodResult}
 	 * @desc Loop
 	 */
 	loop(env, val, encode) {
@@ -263,11 +283,14 @@ class Methods {
 		if (factors.includes(1)) {
 			factors = integerFactorization(target.steps - 1)
 			isPrime = true
+
+			if (!factors)
+				return {err: `Cannot perform integer factorization on ${target.steps - 1}`}
 		}
 
 		// Get details for counter
 		const counter = encode(factors[0], env)
-		if (counter.err) return err
+		if ('err' in counter) return { err: counter.err }
 
 		env.ptr = counter.env.ptr
 		env.mem = counter.env.mem
@@ -293,8 +316,8 @@ class Methods {
 
 /**
  * @param {string} text - Raw text
- * @param {BfEncoderv2Result} config - Configuration and state to begin from
- * @returns {BfEncoderv2Result}
+ * @param {Result} config - Configuration and state to begin from
+ * @returns {Generator<Result>}
  * @desc Encode raw text into Brainfuck code
  */
 export const bfencoderv2 = function *(text, config = {}) {
@@ -305,54 +328,54 @@ export const bfencoderv2 = function *(text, config = {}) {
 	const pause = config.pause ?? false	
 
 	/**
-	 * @param {string} val - Value
-	 * @param {Environment} env
-	 * @returns {{ code: string, env: Environment, err?: string }}
+	 * @param {number} val - Value
+	 * @param {Environment|null} env
+	 * @returns {MethodResult}
 	 * @desc Test all encoding techniques and returns the smallest result
 	 */
 	const encode = (val, env = null) => {
 		const methods = new Methods(max_mem)
 
 		if (!env) env = { mem, ptr, locks: [] }
-		const results = [
-			['incDec', methods.incDec(copy(env), val)],
-			['moveIncDec', methods.moveIncDec(copy(env), val)],
-			['createIncDec', methods.createIncDec(copy(env), val)],
-			['zeroIncDec', methods.zeroIncDec(copy(env), val)],
-			['loop', methods.loop(copy(env), val, encode)]
-		]
 
-		const result = results.reduce((smallest, curr) => {
-			if (curr[1].err) return smallest
-			if (smallest[1].err) return curr
-
-			return curr[1].code.length < smallest[1].code.length ? curr : smallest
-		})
-
-		if (result.err) return {
-			err: results.map(e => `${e[0]}: ${e[1].err}`).join('\n')
+		const results = {
+			'incDec': methods.incDec(copy(env), val),
+			'moveIncDec': methods.moveIncDec(copy(env), val),
+			'createIncDec': methods.createIncDec(copy(env), val),
+			'zeroIncDec': methods.zeroIncDec(copy(env), val),
+			'loop': methods.loop(copy(env), val, encode)
 		}
 
-		return result[1]
+		const result = Object.values(results).reduce((smallest, curr) => {
+			if ('err' in curr) return smallest
+			if ('err' in smallest) return curr
+
+			return curr.code.length < smallest.code.length ? curr : smallest
+		})
+
+		if ('err' in result) return {
+			err: Object.entries(results).map(e => 'err' in e[1] ? `${e[0]}: ${e[1].err}` : '').join('\n')
+		}
+
+		return result
 	}
 
 	if (config.err)
-		return { err: 'Cannot run with error set' }
+		return {err: 'Cannot run with error set'}
 
 	let ip = config.ip ?? 0
-	for (; ip < text.length; ++ip)
-	{
+	for (; ip < text.length; ++ip) {
 		const config = {mem, max_mem, ptr, ip, res, pause}
 
 		const val = text[ip].charCodeAt(0)
 		if (val > 127) return {...config, err: 'Unexpected ASCII character to be greater than 127'}
 
-		const {code, env, err} = encode(val)
-		if (err) return {...config, err}
+		const result = encode(val)
+		if ('err' in result) return {...config, err: result.err}
 
-		res += code + '.'
-		mem = env.mem
-		ptr = env.ptr
+		res += result.code + '.'
+		mem = result.env.mem
+		ptr = result.env.ptr
 
 		if (pause) yield config
 	}
