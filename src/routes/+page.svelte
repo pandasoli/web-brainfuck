@@ -137,6 +137,10 @@
 	<div class='bg-[var(--cl)] rounded-md p-4 w-[min(700px,74%)]'>
 		<span class='text-neutral-500'>Result:</span> A
 	</div>
+
+	<div class='flex flex-col gap-1'>
+		<Button href='/decode'>Go Decode Brainfuck</Button>
+	</div>
 </section>
 
 <style>

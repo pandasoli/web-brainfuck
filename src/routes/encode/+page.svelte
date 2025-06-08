@@ -1,4 +1,6 @@
 <script lang='ts'>
+	import { onMount } from 'svelte'
+	import { browser } from '$app/environment'
 	import { page } from '$app/state'
 	import { pageTitle } from '$stores/title'
 	import { Editor, Slide, CheckBox, Button, InputNumber } from '$lib'
@@ -10,7 +12,7 @@
 	let interpreter: ReturnType<typeof bfencoderv2>|null = $state(null)
 	let mode: 'straight'|'step' = $state('straight')
 	let speed = $state(0)
-	let pause = $state(true)
+	let pause = $state(false)
 	let max_mem = $state(0)
 	let interval = $state(0)
 
@@ -21,7 +23,7 @@
 	let error = $state('')
 
 	const execute = () => {
-		interpreter = bfencoderv2(code, { pause: true, max_mem })
+		interpreter = bfencoderv2(code, { pause, max_mem })
 		continue_()
 	}
 
@@ -89,6 +91,27 @@
 			return line
 		})
 	}
+
+	onMount(() => {
+		if (!browser) return
+
+		const storage = localStorage.getItem('brainfuck')
+		if (!storage) return
+
+		const data = JSON.parse(storage)
+		if (!data) return
+
+		code = data?.text ?? code
+	})
+
+	$effect(() => {
+		const storage = localStorage.getItem('brainfuck')
+		const data = storage ? JSON.parse(storage) : {}
+
+		data.text = code
+
+		localStorage.setItem('brainfuck', JSON.stringify(data))
+	})
 
 	pageTitle.set('Encode')
 </script>

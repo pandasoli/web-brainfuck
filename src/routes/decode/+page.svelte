@@ -1,4 +1,6 @@
 <script lang='ts'>
+	import { onMount } from 'svelte'
+	import { browser } from '$app/environment'
 	import { page } from '$app/state'
 	import { pageTitle } from '$stores/title'
 	import { Editor, Button, Slide, CheckBox } from '$lib'
@@ -10,7 +12,7 @@
 	let interpreter: ReturnType<typeof bfinterpreter>|null = $state(null)
 	let mode: 'straight'|'step' = $state('straight')
 	let speed = $state(0)
-	let pause = $state(true)
+	let pause = $state(false)
 	let interval = $state(0)
 	let error = $state('')
 
@@ -21,7 +23,7 @@
 
 	const execute = () => {
 		interpreter = bfinterpreter(code, {
-			pause: true,
+			pause,
 			prompt: () => prompt('Enter a character:') ?? ' '
 		})
 
@@ -85,8 +87,29 @@
 		0: 'NULL', 1: 'SOH', 2: 'STX', 3: 'ETX', 4: 'EOT', 5: 'ENQ', 6: 'ACK', 7: 'DEL', 8: 'BS', 9: 'TAB',
 		10: 'LF', 11: 'VT', 12: 'FF', 13: 'CR', 14: 'SO', 15: 'SI', 16: 'DLE', 17: 'DC1', 18: 'DC2', 19: 'DC3',
 		20: 'DC4', 21: 'NAK', 22: 'SYN', 23: 'ETB', 24: 'CAN', 25: 'EM', 26: 'SUB', 27: 'ESC', 28: 'FS', 29: 'GS',
-		30: 'RS', 31: 'US', 32: 'space'
+		30: 'RS', 31: 'US', 32: 'space', 127: 'DEL'
 	}
+
+	onMount(() => {
+		if (!browser) return
+
+		const storage = localStorage.getItem('brainfuck')
+		if (!storage) return
+
+		const data = JSON.parse(storage)
+		if (!data) return
+
+		code = data?.code ?? code
+	})
+
+	$effect(() => {
+		const storage = localStorage.getItem('brainfuck')
+		const data = storage ? JSON.parse(storage) : {}
+
+		data.code = code
+
+		localStorage.setItem('brainfuck', JSON.stringify(data))
+	})
 
 	pageTitle.set('Decode')
 </script>
@@ -172,7 +195,7 @@
 	<h1 class='font-alphacentauri text-xl'>ASCII Table</h1>
 
 	<ol class='columns-3 md:columns-6 lg:columns-8'>
-		{#each { length: 127 }, i}
+		{#each { length: 128 }, i}
 			<li>
 				{i} -
 				{#if i in ascii_descriptions}

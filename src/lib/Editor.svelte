@@ -149,9 +149,9 @@
 			{/each}
 		</div>
 
-		<div class='font-firacode relative h-full flex-1 rounded-md bg-[var(--cl)] overflow-hidden'>
+		<div class='relative h-full flex-1 rounded-md bg-[var(--cl)] overflow-hidden'>
 			<textarea
-				class='p-4'
+				class='p-4 font-hack'
 				bind:this={textarea}
 				bind:value={code}
 				onkeydown={keydown}
