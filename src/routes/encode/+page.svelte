@@ -197,7 +197,7 @@
 				<span class='text-red-400'>{error}</span>
 			{:else}
 				<span class='text-neutral-500'>Result:</span>
-				{@html brainfuckHighlight(result, -1)}
+				<pre class='whitespace-pre-wrap break-words overflow-wrap-break'><code class='font-hack block'>{@html brainfuckHighlight(result, -1)}</code></pre>
 			{/if}
 		</div>
 

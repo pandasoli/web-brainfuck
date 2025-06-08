@@ -192,7 +192,7 @@
 				<span class='text-red-400'>{error}</span>
 			{:else}
 				<span class='text-neutral-500'>Result:</span>
-				{result}
+				<pre class='whitespace-pre-wrap break-words overflow-wrap-break'><code class='font-hack'>{result}</code></pre>
 			{/if}
 		</div>
 
