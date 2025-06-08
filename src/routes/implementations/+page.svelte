@@ -78,7 +78,7 @@
 <section class='flex flex-col items-center justify-center gap-16 px-4 pb-16 pt-8 md:pt-16'>
 	<h1 class='font-alphacentauri text-xl' id='tutorial'>Interpreters</h1>
 
-	<div class='flex gap-2'>
+	<div class='flex flex-wrap justify-center gap-2'>
 		{#each interpreters as info}
 			{@render card(info)}
 		{/each}
@@ -88,7 +88,7 @@
 <section class='flex flex-col items-center justify-center gap-16 px-4 pb-16 pt-8 md:pt-16'>
 	<h1 class='font-alphacentauri text-xl' id='tutorial'>Compilers</h1>
 
-	<div class='flex gap-2'>
+	<div class='flex flex-wrap justify-center gap-2'>
 		{#each compilers as info}
 			{@render card(info)}
 		{/each}
@@ -98,7 +98,7 @@
 <section class='flex flex-col items-center justify-center gap-16 px-4 pb-16 pt-8 md:pt-16'>
 	<h1 class='font-alphacentauri text-xl' id='tutorial'>Transpilers</h1>
 
-	<div class='flex gap-2'>
+	<div class='flex flex-wrap justify-center gap-2'>
 		{#each transpilers as info}
 			{@render card(info)}
 		{/each}
