@@ -7,7 +7,7 @@
 	import { bfencoderv2 } from '$scripts/encoderv2'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
 
-	let text = $state(page.url.searchParams.get('text') ?? 'Hello, World!')
+	let text = $state('')
 
 	let interpreter: ReturnType<typeof bfencoderv2>|null = $state(null)
 	let mode: 'straight'|'step' = $state('straight')
@@ -95,8 +95,13 @@
 	onMount(() => {
 		if (!browser) return
 
+		const url_text = page.url.searchParams.get('text')
+		if (url_text)
+			return text = url_text
+
 		const storage = localStorage.getItem('brainfuck')
-		if (!storage) return
+		if (!storage)
+			return text = 'Hello, World!'
 
 		const data = JSON.parse(storage)
 		if (!data) return

@@ -7,7 +7,7 @@
 	import { bfinterpreter } from '$scripts/complete'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
 
-	let code = $state(page.url.searchParams.get('code') ?? 'H = 72\n++++++++\n[\n\t> +++++++++\n\t< -\n]\n> .\n\ne = 101\n+++++++++++++++++++++++++++++ .\n\nll = 108\n+++++++ ..\n\no = 111\n+++ .\n\nvirgola = 44\n< ++++++++++\n[\n\t> -------\n\t< -\n]\n> +++ .\n\nspace = 0\n< ++++\n[\n\t> -----------\n\t< -\n]\n> .\n\nW = 87\n< ++++++++\n[\n\t> +++++++++++\n\t< -\n]\n> - .\n\no = 111\n< +++\n[\n\t> ++++++++\n\t< -\n]\n> .\n\nr = 114\n+++ .\n\nl = 108\n------ .\n\nd = 100\n-------- .\n\nexclamation = 33\n< +++\n[\n\t> ----------------------\n\t< -\n]\n> - .\n')
+	let code = $state('')
 
 	let interpreter: ReturnType<typeof bfinterpreter>|null = $state(null)
 	let mode: 'straight'|'step' = $state('straight')
@@ -95,8 +95,13 @@
 	onMount(() => {
 		if (!browser) return
 
+		const url_code = page.url.searchParams.get('code')
+		if (url_code)
+			return code = url_code
+
 		const storage = localStorage.getItem('brainfuck')
-		if (!storage) return
+		if (!storage)
+			return code = 'H = 72\n++++++++\n[\n\t> +++++++++\n\t< -\n]\n> .\n\ne = 101\n+++++++++++++++++++++++++++++ .\n\nll = 108\n+++++++ ..\n\no = 111\n+++ .\n\nvirgola = 44\n< ++++++++++\n[\n\t> -------\n\t< -\n]\n> +++ .\n\nspace = 0\n< ++++\n[\n\t> -----------\n\t< -\n]\n> .\n\nW = 87\n< ++++++++\n[\n\t> +++++++++++\n\t< -\n]\n> - .\n\no = 111\n< +++\n[\n\t> ++++++++\n\t< -\n]\n> .\n\nr = 114\n+++ .\n\nl = 108\n------ .\n\nd = 100\n-------- .\n\nexclamation = 33\n< +++\n[\n\t> ----------------------\n\t< -\n]\n> - .\n'
 
 		const data = JSON.parse(storage)
 		if (!data) return
