@@ -131,9 +131,7 @@
 	<h1 class='font-alphacentauri text-xl mb-12'>Example</h1>
 
 	<div class='bg-[var(--cl)] rounded-md p-4 w-[min(900px,96%)]'>
-		{#each brainfuckHighlight(`++++++\n[\n\t> ++++++++++\n\t< -\n]\n+++++ .`, -1) as line}
-			<div>{@html line}</div>
-		{/each}
+		<pre><code class='font-hack'>{#each brainfuckHighlight(`++++++\n[\n\t> ++++++++++\n\t<-\n]\n+++++ .`, -1) as line}<div>{@html line}</div>{/each}</code></pre>
 	</div>
 
 	<div class='bg-[var(--cl)] rounded-md p-4 w-[min(700px,74%)]'>
@@ -143,4 +141,19 @@
 
 <style>
 	.pointer { clip-path: polygon(50% 0px, 100% 100%, 0px 100%) }
+
+	pre {
+		margin: 0;
+		height: 100%;
+		width: 100%;
+		white-space: pre;
+		tab-size: 2;
+
+		position: relative;
+		z-index: 0;
+		pointer-events: none;
+		overflow: hidden
+	}
+
+	code div { min-height: 1.5em }
 </style>

@@ -163,7 +163,7 @@
 				class='p-4'
 				bind:this={highlightContainer}
 				onscroll={e => syncScroll(e, 'highlight')}
-			><code class='font-firacode'>{#each highlightedLines as line}<div>{@html line}</div>{/each}</code></pre>
+			><code class='font-hack'>{#each highlightedLines as line}<div>{@html line}</div>{/each}</code></pre>
 		</div>
 	</div>
 </div>
