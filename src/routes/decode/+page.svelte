@@ -6,6 +6,7 @@
 	import { Editor, Button, Slide, CheckBox, Tooltip } from '$lib'
 	import { bfinterpreter } from '$scripts/complete'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
+    import InputNumber from '$lib/InputNumber.svelte';
 
 	let code = $state('')
 
@@ -14,6 +15,8 @@
 	let speed = $state(0)
 	let pause = $state(false)
 	let fixedInput = $state(false)
+	let memoryModel = $state([0, 0, 0])
+	let max_mem = $state(0)
 	let interval = $state(0)
 	let input = $state('')
 	let error = $state('')
@@ -24,10 +27,11 @@
 	let result = $state('')
 
 	const execute = () => {
+		memory = [...memoryModel]
+		if (max_mem > 0) memory = memory.slice(0, max_mem)
+
 		interpreter = bfinterpreter(code, {
-			pause,
-			mem: memory,
-			stdin: input,
+			pause, mem: memory, stdin: input, max_mem,
 			prompt: () => prompt('Enter a character:') ?? ' '
 		})
 
@@ -35,10 +39,11 @@
 	}
 
 	const execute_step = () => {
+		memory = [...memoryModel]
+		if (max_mem > 0) memory = memory.slice(0, max_mem)
+
 		interpreter = bfinterpreter(code, {
-			pause: true,
-			mem: memory,
-			stdin: input,
+			pause: true, mem: memory, stdin: input, max_mem,
 			prompt: () => prompt('Enter a character:') ?? ' '
 		})
 
@@ -78,7 +83,7 @@
 
 	const reset = () => {
 		interpreter = null
-		memory = [0, 0, 0]
+		memory = [...memoryModel]
 		ip = pointer = 0
 		error = result = ''
 		clearInterval(interval)
@@ -149,7 +154,7 @@
 
 			<div class='flex flex-col gap-2 min-w-80'>
 				<label class='flex items-center gap-2'>
-					<CheckBox checked={pause} oninput={e => pause = e.currentTarget.checked} />
+					<CheckBox bind:checked={pause} />
 					Pause <Tooltip down tip='Execute program with short pauses.' />
 				</label>
 
@@ -159,6 +164,11 @@
 						<Slide onSlide={v => speed = v} />
 					</label>
 				{/if}
+
+				<label class='flex items-center gap-2'>
+					Memory limit:
+					<InputNumber bind:value={max_mem} />
+				</label>
 			</div>
 		</div>
 
@@ -169,6 +179,7 @@
 						<li>
 							<input
 								bind:value={memory[i]}
+								oninput={e => memoryModel[i] = Number(e.currentTarget.value)}
 								type='number'
 								max='127' min='0'
 								class='memory-cell outline-none shadow-[0_0_.25rem_white] text-center min-w-12 py-2 w-0 focus:input-shadow'
@@ -196,7 +207,7 @@
 
 <section class='pt-15 mx-auto w-[min(1020px,94%)] flex flex-col gap-2'>
 	<label class='flex items-center gap-2'>
-		<CheckBox checked={pause} oninput={e => fixedInput = e.currentTarget.checked} />
+		<CheckBox bind:checked={fixedInput} />
 		Fixed Input <Tooltip tip='Store inputs here to avoid repeated prompts during program execution.' />
 	</label>
 

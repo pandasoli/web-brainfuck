@@ -15,6 +15,7 @@
  * @property {function(): string} [prompt] - Input function
  * @property {boolean} [pause] - Pause when found valid character
  * @property {string} [stdin] - Standard input content
+ * @property {number} [max_mem] - Maximum memory size
  */
 
 /**
@@ -24,7 +25,8 @@
 * @returns {Generator<Result, Result, void>}
 */
 export function * bfinterpreter(code = '', config = {}) {
-  const mem = config?.mem ?? [0]
+	const mem = config?.mem ?? [0]
+	const max_mem = config?.max_mem ?? 0
   let ptr = config?.ptr ?? 0
   let res = config?.res ?? ''
 	let stdin = config?.stdin ?? ''
@@ -58,7 +60,10 @@ export function * bfinterpreter(code = '', config = {}) {
 
 		if      (ch == '+') {if (++mem[ptr] > 127) mem[ptr] = 0}
 		else if (ch == '-') {if (--mem[ptr] < 0) mem[ptr] = 127}
-		else if (ch == '>') ++ptr >= mem.length && mem.push(0)
+		else if (ch == '>') {
+			++ptr >= mem.length && mem.push(0)
+			if (max_mem > 0 && mem.length > max_mem) throw new RangeError('Error: transpassing memory limit')
+		}
 		else if (ch == '<') {if (--ptr == -1) throw new RangeError('Error: pointer cannot be less than 1')}
 		else if (ch == '.') res += String.fromCharCode(mem[ptr])
 		else if (ch == ',') {

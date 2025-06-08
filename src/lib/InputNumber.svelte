@@ -2,14 +2,14 @@
 	import type { HTMLAttributes } from 'svelte/elements'
 
 	interface Props extends HTMLAttributes<HTMLInputElement> {
-		defaultValue: number
+		value: number
 	}
 
-	const { ...props }: Props = $props()
+	let { value = $bindable(), ...props }: Props = $props()
 </script>
 
 <div class='relative w-fit'>
-	<input type='number' class='outline-none min-w-[100px] w-0 py-1 px-2 bg-[var(--cl)] rounded-md focus:input-shadow' {...props} />
+	<input type='number' bind:value class='outline-none min-w-[100px] w-0 py-1 px-2 bg-[var(--cl)] rounded-md focus:input-shadow' {...props} />
 </div>
 
 <style>

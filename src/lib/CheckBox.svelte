@@ -5,13 +5,13 @@
 		checked?: boolean
 	}
 
-	let { checked, ...props }: Props = $props()
+	let { checked = $bindable(), ...props }: Props = $props()
 </script>
 
 <input
 	type='checkbox'
 	class='appearance-none w-6 h-6 rounded-md border border-lime-200 bg-[var(--cl)] checked:bg-lime-200 focus:input-shadow'
-	{checked}
+	bind:checked
 	{...props}
 />
 

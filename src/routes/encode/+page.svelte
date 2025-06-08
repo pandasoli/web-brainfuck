@@ -13,6 +13,7 @@
 	let mode: 'straight'|'step' = $state('straight')
 	let speed = $state(0)
 	let pause = $state(false)
+	let memoryModel = $state([0, 0, 0])
 	let max_mem = $state(0)
 	let interval = $state(0)
 
@@ -23,11 +24,17 @@
 	let error = $state('')
 
 	const execute = () => {
+		memory = [...memoryModel]
+		if (max_mem > 0) memory = memory.slice(0, max_mem)
+
 		interpreter = bfencoderv2(text, { pause, mem: memory, max_mem })
 		continue_()
 	}
 
 	const execute_step = () => {
+		memory = [...memoryModel]
+		if (max_mem > 0) memory = memory.slice(0, max_mem)
+
 		interpreter = bfencoderv2(text, { pause: true, mem: memory, max_mem })
 		step()
 	}
@@ -158,7 +165,7 @@
 
 				<label class='flex items-center gap-2'>
 					Memory limit:
-					<InputNumber defaultValue={max_mem} oninput={e => max_mem = Number(e.currentTarget.value)} />
+					<InputNumber bind:value={max_mem} />
 				</label>
 			</div>
 		</div>
@@ -170,6 +177,7 @@
 						<li>
 							<input
 								bind:value={memory[i]}
+								oninput={e => memoryModel[i] = Number(e.currentTarget.value)}
 								type='number'
 								max='127' min='0'
 								class='memory-cell outline-none shadow-[0_0_.25rem_white] text-center min-w-12 py-2 w-0 focus:input-shadow'
