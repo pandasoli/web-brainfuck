@@ -10,7 +10,7 @@
 
 <input
 	type='checkbox'
-	class='appearance-none w-6 h-6 rounded-md border border-lime-200 bg-[var(--cl)] checked:bg-lime-200 focus:shadow-[0_0_0_.25rem_rgba(255,255,255,0.6)]'
+	class='appearance-none w-6 h-6 rounded-md border border-lime-200 bg-[var(--cl)] checked:bg-lime-200 focus:input-shadow'
 	{checked}
 	{...props}
 />

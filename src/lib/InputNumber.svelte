@@ -9,7 +9,7 @@
 </script>
 
 <div class='relative w-fit'>
-	<input type='number' class='outline-none min-w-[100px] w-0 py-1 px-2 bg-[var(--cl)] rounded-md focus:shadow-[0_0_0_.25rem_rgba(255,255,255,0.6)]' {...props} />
+	<input type='number' class='outline-none min-w-[100px] w-0 py-1 px-2 bg-[var(--cl)] rounded-md focus:input-shadow' {...props} />
 </div>
 
 <style>

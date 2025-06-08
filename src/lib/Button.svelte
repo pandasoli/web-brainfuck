@@ -46,10 +46,11 @@
 <div class='hover:text-red-400 hidden'></div>
 <div class='bg-red-400 hidden'></div>
 <div class='hover:bg-red-400 hidden'></div>
+<div class='focus:shadow-[0_0_0_.25rem_rgba(255,255,255,0.6)] hidden'></div>
 
 <button
 	{onclick}
-	class='text-xl text-{invert ? '[var(--cl)]' : 'white'} border border-{cl} hover:border-{cl} bg-{invert ? cl : 'transparent'} rounded-full py-{small ? 1 : 3} px-10 transition cursor-pointer hover:bg-{invert ? 'transparent' : cl} hover:text-{invert ? cl : '[var(--cl)]'} focus:shadow-[0_0_0_.25rem_rgba(255,255,255,0.6)]'
+	class='text-xl text-{invert ? '[var(--cl)]' : 'white'} border border-{cl} hover:border-{cl} bg-{invert ? cl : 'transparent'} rounded-full py-{small ? 1 : 3} px-10 transition cursor-pointer hover:bg-{invert ? 'transparent' : cl} hover:text-{invert ? cl : '[var(--cl)]'} focus:{green ? 'input-shadow' : 'shadow-[0_0_0_.25rem_rgba(255,255,255,0.6)]'}'
 >
 	{@render children()}
 </button>

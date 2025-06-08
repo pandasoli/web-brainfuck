@@ -24,6 +24,7 @@
 	const execute = () => {
 		interpreter = bfinterpreter(code, {
 			pause,
+			mem: memory,
 			prompt: () => prompt('Enter a character:') ?? ' '
 		})
 
@@ -33,6 +34,7 @@
 	const execute_step = () => {
 		interpreter = bfinterpreter(code, {
 			pause: true,
+			mem: memory,
 			prompt: () => prompt('Enter a character:') ?? ' '
 		})
 
@@ -99,6 +101,7 @@
 		const data = JSON.parse(storage)
 		if (!data) return
 
+		memory = data?.decode_memory ?? memory
 		code = data?.code ?? code
 	})
 
@@ -106,6 +109,7 @@
 		const storage = localStorage.getItem('brainfuck')
 		const data = storage ? JSON.parse(storage) : {}
 
+		data.decode_memory = memory
 		data.code = code
 
 		localStorage.setItem('brainfuck', JSON.stringify(data))
@@ -152,8 +156,15 @@
 		<div class='grid place-items-center'>
 			<div>
 				<ul class='flex w-fit'>
-					{#each memory as item}
-						<li class='shadow-[0_0_.25rem_white] text-center min-w-12 py-2'>{item}</li>
+					{#each memory, i}
+						<li>
+							<input
+								bind:value={memory[i]}
+								type='number'
+								max='127' min='0'
+								class='memory-cell outline-none shadow-[0_0_.25rem_white] text-center min-w-12 py-2 w-0 focus:input-shadow'
+							/>
+						</li>
 					{/each}
 				</ul>
 
@@ -210,4 +221,5 @@
 
 <style>
 	.pointer { clip-path: polygon(50% 0px, 100% 100%, 0px 100%) }
+	.memory-cell { appearance: textfield }
 </style>

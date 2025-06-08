@@ -7,7 +7,7 @@
 	import { bfencoderv2 } from '$scripts/encoderv2'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
 
-	let code = $state(page.url.searchParams.get('text') ?? 'Hello, World!')
+	let text = $state(page.url.searchParams.get('text') ?? 'Hello, World!')
 
 	let interpreter: ReturnType<typeof bfencoderv2>|null = $state(null)
 	let mode: 'straight'|'step' = $state('straight')
@@ -23,12 +23,12 @@
 	let error = $state('')
 
 	const execute = () => {
-		interpreter = bfencoderv2(code, { pause, max_mem })
+		interpreter = bfencoderv2(text, { pause, mem: memory, max_mem })
 		continue_()
 	}
 
 	const execute_step = () => {
-		interpreter = bfencoderv2(code, { pause: true })
+		interpreter = bfencoderv2(text, { pause: true, mem: memory, max_mem })
 		step()
 	}
 
@@ -101,14 +101,16 @@
 		const data = JSON.parse(storage)
 		if (!data) return
 
-		code = data?.text ?? code
+		memory = data?.encode_memory ?? memory
+		text = data?.text ?? text
 	})
 
 	$effect(() => {
 		const storage = localStorage.getItem('brainfuck')
 		const data = storage ? JSON.parse(storage) : {}
 
-		data.text = code
+		data.encode_memory = memory
+		data.text = text
 
 		localStorage.setItem('brainfuck', JSON.stringify(data))
 	})
@@ -159,8 +161,15 @@
 		<div class='grid place-items-center'>
 			<div>
 				<ul class='flex w-fit'>
-					{#each memory as item}
-						<li class='shadow-[0_0_.25rem_white] text-center min-w-12 py-2'>{item}</li>
+					{#each memory, i}
+						<li>
+							<input
+								bind:value={memory[i]}
+								type='number'
+								max='127' min='0'
+								class='memory-cell outline-none shadow-[0_0_.25rem_white] text-center min-w-12 py-2 w-0 focus:input-shadow'
+							/>
+						</li>
 					{/each}
 				</ul>
 
@@ -172,9 +181,9 @@
 			<div class='h-[110%]'>
 				<!-- Using ip will make it update when ip updates. -->
 				<Editor
-					{code}
+					code={text}
 					highlightFn={code => ip ? highlightFn(code, interpreter ? ip : -1) : highlightFn(code, interpreter ? ip : -1)}
-					oninput={v => code = v}
+					oninput={v => text = v}
 				/>
 			</div>
 		</div>
@@ -200,4 +209,5 @@
 
 <style>
 	.pointer { clip-path: polygon(50% 0px, 100% 100%, 0px 100%) }
+	.memory-cell { appearance: textfield }
 </style>
