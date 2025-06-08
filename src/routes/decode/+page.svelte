@@ -3,7 +3,7 @@
 	import { browser } from '$app/environment'
 	import { page } from '$app/state'
 	import { pageTitle } from '$stores/title'
-	import { Editor, Button, Slide, CheckBox } from '$lib'
+	import { Editor, Button, Slide, CheckBox, Tooltip } from '$lib'
 	import { bfinterpreter } from '$scripts/complete'
 	import { brainfuckHighlight } from '$utils/brainfuckHighlight'
 
@@ -13,7 +13,9 @@
 	let mode: 'straight'|'step' = $state('straight')
 	let speed = $state(0)
 	let pause = $state(false)
+	let fixedInput = $state(false)
 	let interval = $state(0)
+	let input = $state('')
 	let error = $state('')
 
 	let memory: number[] = $state([0, 0, 0])
@@ -25,6 +27,7 @@
 		interpreter = bfinterpreter(code, {
 			pause,
 			mem: memory,
+			stdin: input,
 			prompt: () => prompt('Enter a character:') ?? ' '
 		})
 
@@ -35,6 +38,7 @@
 		interpreter = bfinterpreter(code, {
 			pause: true,
 			mem: memory,
+			stdin: input,
 			prompt: () => prompt('Enter a character:') ?? ' '
 		})
 
@@ -146,7 +150,7 @@
 			<div class='flex flex-col gap-2 min-w-80'>
 				<label class='flex items-center gap-2'>
 					<CheckBox checked={pause} oninput={e => pause = e.currentTarget.checked} />
-					Pause
+					Pause <Tooltip down tip='Execute program with short pauses.' />
 				</label>
 
 				{#if pause}
@@ -188,6 +192,17 @@
 			</div>
 		</div>
 	</div>
+</section>
+
+<section class='pt-15 mx-auto w-[min(1020px,94%)] flex flex-col gap-2'>
+	<label class='flex items-center gap-2'>
+		<CheckBox checked={pause} oninput={e => fixedInput = e.currentTarget.checked} />
+		Fixed Input <Tooltip tip='Store inputs here to avoid repeated prompts during program execution.' />
+	</label>
+
+	{#if fixedInput}
+		<textarea class='bg-[var(--cl)] rounded-lg p-4 outline-none focus:input-shadow' bind:value={input}></textarea>
+	{/if}
 </section>
 
 <section class='pt-15'>

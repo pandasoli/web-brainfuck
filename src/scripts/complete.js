@@ -14,6 +14,7 @@
  * @property {string} [res] - The outputed result
  * @property {function(): string} [prompt] - Input function
  * @property {boolean} [pause] - Pause when found valid character
+ * @property {string} [stdin] - Standard input content
  */
 
 /**
@@ -26,6 +27,7 @@ export function * bfinterpreter(code = '', config = {}) {
   const mem = config?.mem ?? [0]
   let ptr = config?.ptr ?? 0
   let res = config?.res ?? ''
+	let stdin = config?.stdin ?? ''
 
 	/** @param {number} pos */
 	const find_end = pos => {
@@ -59,7 +61,15 @@ export function * bfinterpreter(code = '', config = {}) {
 		else if (ch == '>') ++ptr >= mem.length && mem.push(0)
 		else if (ch == '<') {if (--ptr == -1) throw new RangeError('Error: pointer cannot be less than 1')}
 		else if (ch == '.') res += String.fromCharCode(mem[ptr])
-		else if (ch == ',') mem[ptr] = (config.prompt?.() ?? prompt('enter a ch:') ?? '?').charCodeAt(0)
+		else if (ch == ',') {
+			if (!stdin.length) {
+				stdin = config.prompt?.() ?? '?'
+				if (stdin === '') stdin = '\0'
+			}
+
+			mem[ptr] = stdin.charCodeAt(0)
+			stdin = stdin.slice(1)
+		}
 		else if (ch == '[') mem[ptr] == 0 && (ip = find_end(ip))
 		else if (ch == ']') mem[ptr] > 0  && (ip = find_start(ip))
 		else if (ch == '!') break
